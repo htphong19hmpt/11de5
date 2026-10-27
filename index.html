@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HÓA HỌC 11 - ĐỀ ÔN TẬP GIỮA HỌC KỲ I - ĐỀ 5</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap');
+        body { font-family: 'Montserrat', sans-serif; }
+        .pulse-glow { animation: pulseGlow 2s infinite; }
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 15px rgba(59, 130, 246, 0.5); }
+            50% { box-shadow: 0 0 30px rgba(59, 130, 246, 0.8); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-900 via-purple-900 to-slate-900 min-h-screen text-white flex flex-col items-center justify-between p-4 md:p-8">
+
+    <!-- Header -->
+    <header class="w-full max-w-4xl text-center my-4">
+        <div class="inline-block bg-blue-600 text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full mb-2 shadow-lg">
+            Trò Chơi Học Tập - Hóa học 11
+        </div>
+        <h1 class="text-xl md:text-3xl font-extrabold bg-gradient-to-r from-teal-200 via-blue-200 to-purple-200 bg-clip-text text-transparent">
+            ĐỀ ÔN TẬP GIỮA HỌC KỲ I - HÓA HỌC 11 - ĐỀ 5
+        </h1>
+        <p class="text-slate-300 text-sm md:text-base mt-1">Năm học 2026–2027 • Theo đề ôn tập giữa học kỳ I</p>
+    </header>
+
+    <!-- Main Container -->
+    <main class="w-full max-w-4xl bg-slate-800/80 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700 p-6 md:p-8 my-auto relative overflow-hidden">
+
+        <!-- SETUP SCREEN -->
+        <div id="setup-screen" class="space-y-6">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold text-teal-400 mb-2">Chọn Chế Độ Chơi</h2>
+                <p class="text-slate-300 text-sm">Bộ đề ôn tập giữa học kỳ I: trắc nghiệm, đúng/sai và trả lời ngắn; không giới hạn thời gian.</p>
+            </div>
+
+            <!-- Mode Selector Buttons -->
+            <div class="flex justify-center space-x-4">
+                <button id="btn-mode-group" onclick="setGameMode('group')" class="px-6 py-2.5 rounded-xl font-bold text-sm bg-blue-600 text-white shadow-lg transition flex items-center space-x-2">
+                    <i class="fa-solid fa-users"></i> <span>Đấu Đội / Nhiều Người</span>
+                </button>
+                <button id="btn-mode-single" onclick="setGameMode('single')" class="px-6 py-2.5 rounded-xl font-bold text-sm bg-slate-700 text-slate-300 shadow-lg transition flex items-center space-x-2">
+                    <i class="fa-solid fa-user-graduate"></i> <span>Kiểm Tra Cá Nhân (Đấu đơn)</span>
+                </button>
+            </div>
+
+            <div class="bg-slate-900/60 p-4 rounded-xl border border-slate-700 space-y-4 max-w-md mx-auto">
+                <h3 id="setup-subtitle" class="text-center font-semibold text-teal-300 text-sm">Thiết lập thông tin các đội chơi</h3>
+                <div id="participant-inputs" class="space-y-3">
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-blue-600 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0">1</span>
+                        <input type="text" value="Đội 1" class="participant-input w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 font-semibold text-sm" placeholder="Nhập tên...">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-purple-600 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0">2</span>
+                        <input type="text" value="Đội 2" class="participant-input w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-purple-500 font-semibold text-sm" placeholder="Nhập tên...">
+                    </div>
+                </div>
+
+                <div id="add-team-box" class="flex justify-center pt-2">
+                    <button onclick="addParticipantInput()" class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg font-semibold text-xs transition flex items-center space-x-1">
+                        <i class="fa-solid fa-plus"></i> <span id="add-btn-text">Thêm đội</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="text-center pt-2">
+                <button onclick="startGame()" class="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-bold text-lg px-8 py-3 rounded-xl shadow-lg transform transition hover:scale-105">
+                    Bắt Đầu Ngay (31 Câu)!
+                </button>
+            </div>
+        </div>
+
+        <!-- GAMEPLAY SCREEN -->
+        <div id="game-screen" class="hidden space-y-6">
+            <div class="flex flex-wrap justify-between items-center bg-slate-900/60 p-4 rounded-xl border border-slate-700">
+                <div class="flex items-center space-x-3 mb-2 sm:mb-0">
+                    <span id="turn-label" class="text-xs uppercase tracking-wider text-slate-400">Thí sinh:</span>
+                    <span id="current-participant-badge" class="bg-blue-600 text-white font-bold px-3 py-1 rounded-full text-sm shadow">Bạn</span>
+                </div>
+                <div class="text-sm font-semibold text-teal-300">
+                    Câu hỏi <span id="current-q-num">1</span> / <span id="total-q-num">31</span>
+                </div>
+                <div class="flex items-center space-x-2 text-slate-400 font-medium text-xs sm:text-sm">
+                    <i class="fa-regular fa-clock text-teal-400"></i>
+                    <span>Tự do làm bài</span>
+                </div>
+            </div>
+
+            <div id="scoreboard-mini" class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center"></div>
+
+            <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-700 shadow-inner">
+                <div id="question-badge" class="inline-block text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded bg-teal-800 text-teal-200 mb-2"></div>
+                <h3 id="question-text" class="text-lg md:text-xl font-bold text-white leading-relaxed"></h3>
+            </div>
+
+            <div id="options-container" class="space-y-4"></div>
+        </div>
+
+        <!-- FEEDBACK SCREEN -->
+        <div id="feedback-screen" class="hidden space-y-6 text-center py-4">
+            <div id="feedback-icon" class="text-6xl mb-2"></div>
+            <h3 id="feedback-title" class="text-2xl font-bold"></h3>
+            <div class="bg-slate-900 p-4 rounded-xl border border-slate-700 text-left max-w-2xl mx-auto">
+                <p class="text-xs font-bold text-slate-400 uppercase mb-1">Hướng dẫn giải thích đáp án:</p>
+                <p id="feedback-rationale" class="text-slate-200 text-sm md:text-base"></p>
+            </div>
+            <div>
+                <button onclick="nextQuestion()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-3 rounded-xl shadow-lg transition transform hover:scale-105">
+                    Tiếp Tục <i class="fa-solid fa-arrow-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- END GAME SCREEN -->
+        <div id="end-screen" class="hidden space-y-6 text-center py-6">
+            <div class="text-6xl text-yellow-400 mb-2">
+                <i class="fa-solid fa-trophy animate-bounce"></i>
+            </div>
+            <h2 class="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-amber-500">
+                KẾT QUẢ BÀI THI TỔNG HỢP
+            </h2>
+            <p id="end-subtitle" class="text-slate-300">Đã hoàn thành toàn bộ 90 câu hỏi!</p>
+
+            <div id="final-scoreboard" class="max-w-md mx-auto space-y-3"></div>
+
+            <div class="pt-4">
+                <button onclick="restartGame()" class="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold px-8 py-3 rounded-xl shadow-lg transition transform hover:scale-105">
+                    Làm Lại Từ Đầu
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="w-full max-w-4xl text-center text-xs text-slate-400 my-2">
+        Trò chơi học tập Hóa học 11 - Ôn tập giữa học kỳ I - Đề 5
+    </footer>
+
+    <script>
+        // Web Audio API phát âm thanh sinh động khi tương tác
+        let audioCtx = null;
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        function playCorrectSound() {
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                const notes = [523.25, 659.25, 783.99]; // Âm vang tươi vui (C5 -> E5 -> G5)
+                notes.forEach((freq, index) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(freq, now + index * 0.1);
+                    gain.gain.setValueAtTime(0.18, now + index * 0.1);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + index * 0.1 + 0.28);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now + index * 0.1);
+                    osc.stop(now + index * 0.1 + 0.28);
+                });
+            } catch (e) {
+                console.log("Audio error", e);
+            }
+        }
+
+        function playIncorrectSound() {
+            try {
+                const ctx = getAudioContext();
+                const now = ctx.currentTime;
+                const freqs = [174.61, 138.59]; // Âm báo sai trầm (F3 -> C#3)
+                freqs.forEach((freq, index) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(freq, now + index * 0.15);
+                    gain.gain.setValueAtTime(0.2, now + index * 0.15);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + index * 0.15 + 0.25);
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.start(now + index * 0.15);
+                    osc.stop(now + index * 0.15 + 0.25);
+                });
+            } catch (e) {
+                console.log("Audio error", e);
+            }
+        }
+
+        // Ngân hàng 90 câu hỏi chuẩn cấu trúc ma trận theo SGK Hóa 12 KNTT
+        const originalQuestions = [
+            { type: 'mcq', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 1. Cho các dung dịch HCl, NaCl, AlCl₃, Fe(NO₃)₃, KOH, Na₂CO₃, HNO₃. Có bao nhiêu dung dịch làm quỳ tím chuyển đỏ?",
+              options: [{ text: '2', isCorrect: false }, { text: '4', isCorrect: true }, { text: '1', isCorrect: false }, { text: '3', isCorrect: false }],
+              rationale: "Có 4 dung dịch mang tính acid theo đáp án của đề: HCl, AlCl₃, Fe(NO₃)₃ và HNO₃." },
+            { type: 'mcq', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 2. Khoáng vật có thành phần chính chứa muối FeS₂ là gì?",
+              options: [{ text: 'Thạch cao', isCorrect: false }, { text: 'Chu sa', isCorrect: false }, { text: 'Quặng blend', isCorrect: false }, { text: 'Quặng pyrite', isCorrect: true }],
+              rationale: "Pyrite có thành phần chính là FeS₂." },
+            { type: 'mcq', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 3. Hoạt động nào góp phần gây hiện tượng phú dưỡng?",
+              options: [{ text: 'Khử trùng ao hồ bằng CaO', isCorrect: false }, { text: 'Sự quang hợp của cây xanh', isCorrect: false }, { text: 'Nước thải sinh hoạt xả trực tiếp chưa qua xử lí', isCorrect: true }, { text: 'Ao hồ thả quá nhiều tôm, cá', isCorrect: false }],
+              rationale: "Nước thải sinh hoạt giàu hợp chất nitrogen và phosphorus có thể gây phú dưỡng." },
+            { type: 'mcq', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 4. Hai tác nhân chính gây mưa acid là gì?",
+              options: [{ text: 'S và H₂S', isCorrect: false }, { text: 'SO₂ và NOₓ', isCorrect: true }, { text: 'N₂ và NH₃', isCorrect: false }, { text: 'Cl₂ và HCl', isCorrect: false }],
+              rationale: "SO₂ và các oxide nitrogen là tác nhân chính gây mưa acid." },
+            { type: 'mcq', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 5. Các phát biểu về SO₂: (a) độc với con người; (b) phản ứng với đá vôi; (c) sinh ra từ núi lửa và đốt nhiên liệu hóa thạch; (d) là oxide lưỡng tính. Có bao nhiêu phát biểu đúng?",
+              options: [{ text: '1', isCorrect: false }, { text: '4', isCorrect: false }, { text: '3', isCorrect: true }, { text: '2', isCorrect: false }],
+              rationale: "(a), (b), (c) đúng; SO₂ là oxide acid, không phải oxide lưỡng tính." },
+            { type: 'mcq', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 6. Trong không khí, chất nào chiếm phần trăm thể tích lớn nhất?",
+              options: [{ text: 'N₂', isCorrect: true }, { text: 'O₂', isCorrect: false }, { text: 'NO', isCorrect: false }, { text: 'CO₂', isCorrect: false }],
+              rationale: "Nitrogen chiếm khoảng 78% thể tích không khí khô." },
+            { type: 'mcq', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 7. Phát biểu nào đúng về sự điện li?",
+              options: [{ text: 'Là quá trình oxi hóa – khử', isCorrect: false }, { text: 'Là quá trình phân li chất trong nước thành ion', isCorrect: true }, { text: 'Là quá trình phân li dưới tác dụng dòng điện', isCorrect: false }, { text: 'Là quá trình hòa tan chất vào nước tạo dung dịch', isCorrect: false }],
+              rationale: "Sự điện li là sự phân li thành ion khi chất tan trong nước hoặc ở trạng thái nóng chảy." },
+            { type: 'mcq', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 8. Phản ứng thuận nghịch là phản ứng nào?",
+              options: [{ text: 'Có phương trình biểu diễn bằng mũi tên một chiều', isCorrect: false }, { text: 'Xảy ra theo hai chiều ngược nhau trong cùng điều kiện', isCorrect: true }, { text: 'Chỉ xảy ra theo một chiều', isCorrect: false }, { text: 'Chỉ xảy ra giữa hai chất khí', isCorrect: false }],
+              rationale: "Phản ứng thuận nghịch xảy ra theo cả chiều thuận và chiều nghịch trong cùng điều kiện." },
+            { type: 'mcq', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 9. Tính chất nào của nitrogen được vận dụng trong phòng cháy, chữa cháy?",
+              options: [{ text: 'Tính trơ', isCorrect: true }, { text: 'Tính khử', isCorrect: false }, { text: 'Dễ hóa lỏng', isCorrect: false }, { text: 'Tính oxi hóa', isCorrect: false }],
+              rationale: "Nitrogen tương đối trơ và không duy trì sự cháy như oxygen." },
+            { type: 'mcq', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 10. Theo thuyết Brønsted–Lowry, base là chất có khả năng gì?",
+              options: [{ text: 'Chứa hydrogen', isCorrect: false }, { text: 'Cho proton H⁺', isCorrect: false }, { text: 'Nhận proton H⁺', isCorrect: true }, { text: 'Phân li ra ion OH⁻', isCorrect: false }],
+              rationale: "Base Brønsted–Lowry là chất nhận proton." },
+            { type: 'mcq', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 11. Ứng dụng nào sau đây không phải của sulfur?",
+              options: [{ text: 'Sản xuất diêm, thuốc nổ', isCorrect: false }, { text: 'Làm nguyên liệu sản xuất H₂SO₄', isCorrect: false }, { text: 'Lưu hóa cao su', isCorrect: false }, { text: 'Khử chua đất', isCorrect: true }],
+              rationale: "Khử chua đất thường dùng vôi; sulfur không phải vật liệu khử chua thông dụng." },
+            { type: 'mcq', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 12. Phát biểu nào không đúng về phân tử HNO₃?",
+              options: [{ text: 'Có một liên kết cho – nhận', isCorrect: false }, { text: 'Nitrogen có số oxi hóa +5', isCorrect: false }, { text: 'Phân tử phân cực', isCorrect: false }, { text: 'Liên kết O–H phân cực mạnh về phía nguyên tử hydrogen', isCorrect: true }],
+              rationale: "Liên kết O–H phân cực về phía oxygen do oxygen có độ âm điện lớn hơn hydrogen." },
+            { type: 'tf', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 13. Nhận định sau đúng hay sai? Mẫu đất có pH = 4,5 có môi trường acid.",
+              correctBool: true,
+              rationale: "Đúng. pH nhỏ hơn 7 biểu thị môi trường acid." },
+            { type: 'tf', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 14. Nhận định sau đúng hay sai? Dung dịch đất có pH = 4,5 có nồng độ H⁺ bằng 0,45 mol/L.",
+              correctBool: false,
+              rationale: "Sai. [H⁺] = 10⁻⁴·⁵ mol/L, không phải 0,45 mol/L." },
+            { type: 'tf', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 15. Nhận định sau đúng hay sai? Đất có pH = 4,5 được gọi là đất chua.",
+              correctBool: true,
+              rationale: "Đúng. Đất có tính acid được gọi là đất chua." },
+            { type: 'tf', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 16. Nhận định sau đúng hay sai? Thêm phenolphthalein vào dung dịch có pH = 4,5 sẽ làm dung dịch chuyển hồng.",
+              correctBool: false,
+              rationale: "Sai. Phenolphthalein không màu trong môi trường acid." },
+            { type: 'tf', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 17. Nhận định sau đúng hay sai? Với H₂(g) + I₂(g) ⇌ 2HI(g), Kc = [HI]² / ([H₂][I₂]).",
+              correctBool: true,
+              rationale: "Đúng. Nồng độ sản phẩm đặt ở tử số với số mũ là hệ số cân bằng." },
+            { type: 'tf', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 18. Nhận định sau đúng hay sai? Với N₂(g) + 3H₂(g) ⇌ 2NH₃(g), Kc = [NH₃] / ([N₂][H₂]).",
+              correctBool: false,
+              rationale: "Sai. Biểu thức đúng là [NH₃]² / ([N₂][H₂]³)." },
+            { type: 'tf', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 19. Nhận định sau đúng hay sai? Hai phản ứng tổng hợp NH₃ và tạo HI nêu trong đề là phản ứng thuận nghịch.",
+              correctBool: true,
+              rationale: "Đúng. Cả hai phản ứng đều có thể xảy ra theo hai chiều." },
+            { type: 'tf', level: 'NB', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 20. Nhận định sau đúng hay sai? Phản ứng tổng hợp NH₃ luôn xảy ra hoàn toàn trong cùng một điều kiện.",
+              correctBool: false,
+              rationale: "Sai. Phản ứng thiết lập cân bằng, không luôn chuyển hóa hoàn toàn." },
+            { type: 'sa', level: 'TH', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 21. Có bao nhiêu muối trong NH₄Cl, NH₄NO₃, NH₄HCO₃, NH₄NO₂ khi nhiệt phân hoàn toàn tạo sản phẩm khí NH₃?",
+              correctAnswer: "2",
+              rationale: "Theo đáp án của đề, có 2 muối tạo NH₃ khi nhiệt phân hoàn toàn." },
+            { type: 'sa', level: 'TH', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 22. Trong dãy NaCl, CH₃COOH, KMnO₄, KAl(SO₄)₂·12H₂O, C₁₂H₂₂O₁₁, CuSO₄, CO₂, C₆H₆, có bao nhiêu chất điện li?",
+              correctAnswer: "5",
+              rationale: "Các chất điện li trong dãy gồm NaCl, CH₃COOH, KMnO₄, KAl(SO₄)₂·12H₂O và CuSO₄." },
+            { type: 'sa', level: 'TH', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 23. HNO₃ tác dụng với NH₃, CuO, CaCO₃, Au, NaOH. Có bao nhiêu phản ứng HNO₃ đóng vai trò acid?",
+              correctAnswer: "4",
+              rationale: "HNO₃ thể hiện tính acid với NH₃, CuO, CaCO₃ và NaOH; không phản ứng với Au trong điều kiện nêu." },
+            { type: 'sa', level: 'TH', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 24. HNO₃ tác dụng với Fe₂O₃, Al, CaCO₃, FeO, KOH. Có bao nhiêu phản ứng HNO₃ đóng vai trò chất oxi hóa?",
+              correctAnswer: "2",
+              rationale: "Theo đáp án của đề, có 2 phản ứng HNO₃ đóng vai trò chất oxi hóa." },
+            { type: 'sa', level: 'TH', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 25. Với SO₂ + 2H₂S → 3S + 2H₂O và SO₂ + NO₂ → SO₃ + NO, phát biểu đúng là số mấy: (1) chỉ oxi hóa; (2) chỉ khử; (3) vừa oxi hóa vừa khử; (4) không thể hiện cả hai?",
+              correctAnswer: "3",
+              rationale: "SO₂ vừa thể hiện tính oxi hóa vừa thể hiện tính khử trong các phản ứng đã cho." },
+            { type: 'sa', level: 'TH', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 26. Trong các phản ứng (1) N₂ + O₂ → 2NO; (2) N₂ + 3H₂ → 2NH₃; (3) 2Al + N₂ → 2AlN; (4) 3Mg + N₂ → Mg₃N₂, có bao nhiêu phản ứng nitrogen đóng vai trò chất oxi hóa?",
+              correctAnswer: "3",
+              rationale: "Nitrogen là chất oxi hóa ở các phản ứng (2), (3), (4)." },
+            { type: 'sa', level: 'TH', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 27. Ở cân bằng H₂(g) + I₂(g) ⇌ 2HI(g), số mol HI tại cân bằng trong thí nghiệm 1 là bao nhiêu mol?",
+              correctAnswer: "1.6",
+              rationale: "Đáp án trong đề: 1,6 mol." },
+            { type: 'sa', level: 'TH', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 28. Trong các phản ứng sulfur với O₂, F₂, Hg, H₂ và HNO₃ đã cho, có bao nhiêu phản ứng sulfur đơn chất đóng vai trò chất khử?",
+              correctAnswer: "3",
+              rationale: "Sulfur đóng vai trò chất khử trong các phản ứng (1), (2) và (5)." },
+            { type: 'sa', level: 'TH', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 29. Cân bằng 2SO₂(g) + O₂(g) ⇌ 2SO₃(g), ΔrH°₂₉₈ = −198 kJ. Khi thêm O₂, cân bằng chuyển dịch theo chiều nào?",
+              correctAnswer: "thuận",
+              rationale: "Theo nguyên lí Le Chatelier, thêm O₂ làm cân bằng chuyển dịch theo chiều thuận." },
+            { type: 'sa', level: 'TH', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 30. Pha 1,062 g NaOH thành 250 mL dung dịch. Tính nồng độ mol/L của dung dịch (nhập số thập phân).",
+              correctAnswer: "0.1062",
+              rationale: "n(NaOH) = 1,062/40 = 0,02655 mol; C = 0,02655/0,250 = 0,1062 M." },
+            { type: 'sa', level: 'TH', lesson: 'Ôn tập giữa HK I - Hóa 11',
+              question: "Câu 31. Hỗn hợp N₂ và H₂ có tỉ lệ mol 1:4, sau phản ứng tổng hợp NH₃ có d(Y/H₂) = 3,913. Hiệu suất phản ứng là bao nhiêu phần trăm?",
+              correctAnswer: "20",
+              rationale: "Gọi ban đầu 1 mol N₂ và 4 mol H₂. Từ d(Y/H₂)=3,913 suy ra M(Y)=7,826; 36/(5−2x)=7,826 nên x=0,2 mol. Hiệu suất = 0,2/1 × 100% = 20%." },
+        ];
+        let questions = [];
+        let participants = [];
+        let gameMode = 'group';
+        let currentIndex = 0;
+        let currentQuestionIndex = 0;
+
+        function setGameMode(mode) {
+            gameMode = mode;
+            const btnGroup = document.getElementById('btn-mode-group');
+            const btnSingle = document.getElementById('btn-mode-single');
+            const subtitle = document.getElementById('setup-subtitle');
+            const container = document.getElementById('participant-inputs');
+            const addTeamBox = document.getElementById('add-team-box');
+
+            if (mode === 'group') {
+                btnGroup.className = "px-6 py-2.5 rounded-xl font-bold text-sm bg-blue-600 text-white shadow-lg transition flex items-center space-x-2";
+                btnSingle.className = "px-6 py-2.5 rounded-xl font-bold text-sm bg-slate-700 text-slate-300 shadow-lg transition flex items-center space-x-2";
+                subtitle.innerText = "Thiết lập thông tin các đội chơi";
+                addTeamBox.style.display = 'flex';
+                container.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-blue-600 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0">1</span>
+                        <input type="text" value="Đội 1" class="participant-input w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 font-semibold text-sm" placeholder="Nhập tên...">
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-purple-600 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0">2</span>
+                        <input type="text" value="Đội 2" class="participant-input w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-purple-500 font-semibold text-sm" placeholder="Nhập tên...">
+                    </div>
+                `;
+            } else {
+                btnSingle.className = "px-6 py-2.5 rounded-xl font-bold text-sm bg-teal-600 text-white shadow-lg transition flex items-center space-x-2";
+                btnGroup.className = "px-6 py-2.5 rounded-xl font-bold text-sm bg-slate-700 text-slate-300 shadow-lg transition flex items-center space-x-2";
+                subtitle.innerText = "Nhập họ và tên học sinh làm bài";
+                addTeamBox.style.display = 'none';
+                container.innerHTML = `
+                    <div class="flex items-center space-x-2">
+                        <span class="bg-teal-600 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0"><i class="fa-solid fa-user"></i></span>
+                        <input type="text" value="Nguyễn Văn A" class="participant-input w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-teal-500 font-semibold text-sm" placeholder="Họ và tên của bạn...">
+                    </div>
+                `;
+            }
+        }
+
+        function addParticipantInput() {
+            const container = document.getElementById('participant-inputs');
+            const count = container.children.length + 1;
+            const div = document.createElement('div');
+            div.className = 'flex items-center space-x-2';
+            const colorClass = count % 2 === 0 ? 'bg-purple-600' : 'bg-blue-600';
+            div.innerHTML = `
+                <span class="${colorClass} w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm shrink-0">${count}</span>
+                <input type="text" value="Đội ${count}" class="participant-input w-full bg-slate-900 border border-slate-600 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500 font-semibold text-sm" placeholder="Nhập tên...">
+                <button onclick="this.parentElement.remove()" class="text-red-400 hover:text-red-300 px-2"><i class="fa-solid fa-trash"></i></button>
+            `;
+            container.appendChild(div);
+        }
+
+        function startGame() {
+            getAudioContext();
+
+            const inputs = document.querySelectorAll('.participant-input');
+            participants = [];
+            inputs.forEach((input, index) => {
+                const name = input.value.trim() || (gameMode === 'group' ? `Đội ${index + 1}` : `Học sinh`);
+                participants.push({ name: name, score: 0, correctCount: 0 });
+            });
+
+            if (participants.length === 0) {
+                alert("Vui lòng nhập tên người làm bài!");
+                return;
+            }
+
+            // Xáo trộn ngẫu nhiên toàn bộ 90 câu hỏi
+            questions = [...originalQuestions].sort(() => Math.random() - 0.5);
+
+            document.getElementById('setup-screen').classList.add('hidden');
+            document.getElementById('game-screen').classList.remove('hidden');
+            document.getElementById('total-q-num').innerText = questions.length;
+            
+            if (gameMode === 'single') {
+                document.getElementById('turn-label').innerText = 'Học sinh:';
+            } else {
+                document.getElementById('turn-label').innerText = 'Lượt của:';
+            }
+
+            currentIndex = 0;
+            currentQuestionIndex = 0;
+            loadQuestion();
+        }
+
+        function updateScoreboardMini() {
+            const container = document.getElementById('scoreboard-mini');
+            container.innerHTML = '';
+            
+            if (gameMode === 'single') {
+                container.style.display = 'none';
+                document.getElementById('current-participant-badge').innerText = participants[0].name;
+            } else {
+                container.style.display = 'grid';
+                participants.forEach((p, idx) => {
+                    const isCurrent = idx === currentIndex;
+                    const div = document.createElement('div');
+                    div.className = `p-2 rounded-lg border ${isCurrent ? 'border-teal-400 bg-teal-950/40 pulse-glow' : 'border-slate-700 bg-slate-900/40'}`;
+                    div.innerHTML = `
+                        <div class="text-xs text-slate-300 truncate font-semibold">${p.name}</div>
+                        <div class="text-lg font-extrabold text-teal-300">${p.score} đ</div>
+                    `;
+                    container.appendChild(div);
+                });
+                document.getElementById('current-participant-badge').innerText = participants[currentIndex].name;
+            }
+        }
+
+        function loadQuestion() {
+            const q = questions[currentQuestionIndex];
+            document.getElementById('current-q-num').innerText = currentQuestionIndex + 1;
+            document.getElementById('question-text').innerHTML = q.question;
+
+            // Hiển thị badge phân loại
+            const typeText = q.type === 'mcq' ? 'Trắc nghiệm 4 lựa chọn' : q.type === 'tf' ? 'Câu hỏi Đúng / Sai' : 'Câu hỏi Trả lời ngắn';
+            document.getElementById('question-badge').innerText = `${q.lesson} • Cấp độ: ${q.level} • ${typeText}`;
+
+            updateScoreboardMini();
+
+            const optionsContainer = document.getElementById('options-container');
+            optionsContainer.innerHTML = '';
+
+            if (q.type === 'mcq') {
+                // Trắc nghiệm 4 lựa chọn
+                const gridDiv = document.createElement('div');
+                gridDiv.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
+
+                let currentOptions = [...q.options].sort(() => Math.random() - 0.5);
+                const letters = ['A', 'B', 'C', 'D'];
+
+                currentOptions.forEach((opt, idx) => {
+                    const cleanText = opt.text.replace(/^[A-D]\.\s*/, '');
+                    const btn = document.createElement('button');
+                    btn.className = 'bg-slate-900/90 hover:bg-slate-700 border border-slate-700 hover:border-blue-500 p-4 rounded-xl text-left transition flex items-start space-x-3 group shadow';
+                    
+                    btn.innerHTML = `
+                        <span class="bg-slate-800 text-teal-400 font-bold px-2.5 py-1 rounded-lg text-sm shrink-0">${letters[idx]}</span>
+                        <span class="text-slate-100 font-medium text-sm md:text-base my-auto">${cleanText}</span>
+                    `;
+
+                    btn.onclick = () => selectAnswer(opt.isCorrect, q.rationale);
+                    gridDiv.appendChild(btn);
+                });
+                optionsContainer.appendChild(gridDiv);
+            } else if (q.type === 'tf') {
+                // Câu hỏi Đúng / Sai
+                const gridDiv = document.createElement('div');
+                gridDiv.className = 'grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg mx-auto pt-2';
+
+                const btnTrue = document.createElement('button');
+                btnTrue.className = 'bg-emerald-900/80 hover:bg-emerald-700 border border-emerald-500 p-5 rounded-2xl text-center font-bold text-xl transition shadow-lg flex items-center justify-center space-x-3';
+                btnTrue.innerHTML = `<i class="fa-solid fa-check text-2xl text-emerald-400"></i> <span>ĐÚNG</span>`;
+                btnTrue.onclick = () => selectAnswer(q.correctBool === true, q.rationale);
+
+                const btnFalse = document.createElement('button');
+                btnFalse.className = 'bg-red-900/80 hover:bg-red-700 border border-red-500 p-5 rounded-2xl text-center font-bold text-xl transition shadow-lg flex items-center justify-center space-x-3';
+                btnFalse.innerHTML = `<i class="fa-solid fa-xmark text-2xl text-red-400"></i> <span>SAI</span>`;
+                btnFalse.onclick = () => selectAnswer(q.correctBool === false, q.rationale);
+
+                gridDiv.appendChild(btnTrue);
+                gridDiv.appendChild(btnFalse);
+                optionsContainer.appendChild(gridDiv);
+            } else if (q.type === 'sa') {
+                // Câu hỏi Trả lời ngắn
+                const boxDiv = document.createElement('div');
+                boxDiv.className = 'max-w-md mx-auto space-y-4 pt-2 text-center';
+                boxDiv.innerHTML = `
+                    <div class="text-xs text-slate-400">Nhập đáp án (chữ số, từ khóa hoặc số thập phân) rồi nhấn Xác nhận:</div>
+                    <div class="flex space-x-2">
+                        <input id="sa-input" type="text" class="w-full bg-slate-900 border border-teal-500 rounded-xl px-4 py-3 text-white text-center font-bold text-lg focus:outline-none focus:ring-2 focus:ring-teal-400" placeholder="Nhập câu trả lời...">
+                        <button id="sa-submit-btn" class="bg-teal-600 hover:bg-teal-500 text-white font-bold px-6 py-3 rounded-xl shadow transition">Gửi</button>
+                    </div>
+                `;
+                optionsContainer.appendChild(boxDiv);
+
+                const inputEl = document.getElementById('sa-input');
+                const submitBtn = document.getElementById('sa-submit-btn');
+
+                const handleSaSubmit = () => {
+                    const userAns = inputEl.value.trim().toLowerCase().replace(/\s+/g, '').replace(',', '.');
+                    const targetAns = q.correctAnswer.trim().toLowerCase().replace(/\s+/g, '').replace(',', '.');
+                    const isCorrect = (userAns === targetAns);
+                    selectAnswer(isCorrect, `${q.rationale} (Đáp án chuẩn: <b>${q.correctAnswer}</b>)`);
+                };
+
+                submitBtn.onclick = handleSaSubmit;
+                inputEl.addEventListener('keyup', (e) => {
+                    if (e.key === 'Enter') handleSaSubmit();
+                });
+                setTimeout(() => inputEl.focus(), 100);
+            }
+        }
+
+        function selectAnswer(isCorrect, rationaleText) {
+            document.getElementById('game-screen').classList.add('hidden');
+            const feedbackScreen = document.getElementById('feedback-screen');
+            feedbackScreen.classList.remove('hidden');
+
+            const title = document.getElementById('feedback-title');
+            const icon = document.getElementById('feedback-icon');
+            const rationale = document.getElementById('feedback-rationale');
+
+            if (isCorrect) {
+                playCorrectSound(); // Phát âm thanh chọn ĐÚNG
+                participants[currentIndex].score += 10;
+                participants[currentIndex].correctCount++;
+                icon.innerHTML = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
+                title.innerText = gameMode === 'single' ? "Chính Xác! (+10 điểm)" : `${participants[currentIndex].name} Trả Lời Chính Xác! (+10 điểm)`;
+                title.className = "text-2xl font-bold text-emerald-400";
+            } else {
+                playIncorrectSound(); // Phát âm thanh chọn SAI
+                if (gameMode === 'group') {
+                    participants[currentIndex].score = Math.max(0, participants[currentIndex].score - 5);
+                }
+                icon.innerHTML = '<i class="fa-solid fa-circle-xmark text-red-400"></i>';
+                title.innerText = gameMode === 'single' ? "Chưa Chính Xác!" : `${participants[currentIndex].name} Chưa Chính Xác! (-5 điểm)`;
+                title.className = "text-2xl font-bold text-red-400";
+            }
+
+            rationale.innerHTML = rationaleText;
+        }
+
+        function nextQuestion() {
+            if (gameMode === 'group') {
+                currentIndex = (currentIndex + 1) % participants.length;
+            }
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < questions.length) {
+                document.getElementById('feedback-screen').classList.add('hidden');
+                document.getElementById('game-screen').classList.remove('hidden');
+                loadQuestion();
+            } else {
+                endGame(); // Nộp bài và hiển thị kết quả
+            }
+        }
+
+        function endGame() {
+            document.getElementById('feedback-screen').classList.add('hidden');
+            document.getElementById('end-screen').classList.remove('hidden');
+
+            const container = document.getElementById('final-scoreboard');
+            container.innerHTML = '';
+
+            if (gameMode === 'single') {
+                const student = participants[0];
+                document.getElementById('end-subtitle').innerText = `Học sinh: ${student.name}`;
+                
+                // Quy đổi điểm sang hệ 10 trên tổng số 90 câu
+                const score10 = ((student.correctCount / questions.length) * 10).toFixed(1);
+
+                const div = document.createElement('div');
+                div.className = 'bg-slate-900 border border-teal-500 p-6 rounded-2xl space-y-3 text-center';
+                div.innerHTML = `
+                    <div class="text-slate-400 text-sm">Tổng số câu đúng: <b class="text-white">${student.correctCount} / ${questions.length}</b></div>
+                    <div class="text-4xl font-extrabold text-teal-300">${score10} <span class="text-xl font-bold text-slate-300">/ 10 Điểm</span></div>
+                    <div class="text-xs text-slate-400 pt-2">${Number(score10) >= 8 ? '🌟 Xuất sắc! Bạn nắm rất vững kiến thức ôn tập giữa học kỳ I Hóa học 11.' : Number(score10) >= 5 ? '👍 Khá tốt! Hãy ôn luyện thêm các câu hỏi vận dụng chuyên sâu nhé.' : '📖 Cần cố gắng ôn lại lý thuyết các nội dung ôn tập giữa học kỳ I nhé!'}</div>
+                `;
+                container.appendChild(div);
+            } else {
+                document.getElementById('end-subtitle').innerText = "Trò chơi đã kết thúc! Tổng kết điểm số các đội chơi.";
+                const sortedList = [...participants].sort((a, b) => b.score - a.score);
+                sortedList.forEach((p, idx) => {
+                    const div = document.createElement('div');
+                    div.className = `flex justify-between items-center p-4 rounded-xl border ${idx === 0 ? 'bg-amber-500/20 border-amber-400 text-amber-300 font-bold' : 'bg-slate-900 border-slate-700 text-white'}`;
+                    div.innerHTML = `
+                        <div class="flex items-center space-x-3">
+                            <span class="w-8 h-8 rounded-full flex items-center justify-center font-bold ${idx === 0 ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-300'}">${idx + 1}</span>
+                            <span>${p.name}</span>
+                        </div>
+                        <span class="text-xl font-extrabold">${p.score} điểm</span>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+
+            confetti({
+                particleCount: 160,
+                spread: 85,
+                origin: { y: 0.6 }
+            });
+        }
+
+        function restartGame() {
+            document.getElementById('end-screen').classList.add('hidden');
+            document.getElementById('setup-screen').classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
